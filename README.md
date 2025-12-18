@@ -205,7 +205,9 @@ It’s completely fine if you don’t complete everything. If you run out of tim
 
 ## Libraries / frameworks
 
-You’re welcome to use an **agent library/framework** if you prefer (or write it “by hand”). We care more about your decisions and reliability than the specific library choice.
+This starter uses the **[Vercel AI SDK](https://sdk.vercel.ai/docs)** (see `lib/llm.ts`) to keep the LLM integration tiny and provider-agnostic.
+
+You’re welcome to use **any agent library/framework** you prefer — or **no library at all**. We care more about your decisions and reliability than the specific library choice.
 
 Popular options include:
 

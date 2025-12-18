@@ -1,4 +1,4 @@
-import { generateText as aiGenerateText } from "ai";
+import { generateText } from "ai";
 import { createGoogleGenerativeAI } from "@ai-sdk/google";
 import { createOpenAI } from "@ai-sdk/openai";
 
@@ -29,7 +29,7 @@ function getProviderAndKey(): { provider: LlmProvider; apiKey: string } {
   );
 }
 
-export async function generateText(req: LlmTextRequest): Promise<LlmTextResponse> {
+export async function generateResponse(req: LlmTextRequest): Promise<LlmTextResponse> {
   const { provider, apiKey } = getProviderAndKey();
   const modelName = req.model ?? (provider === "gemini" ? "gemini-2.5-flash" : "gpt-4o-mini");
 
@@ -38,7 +38,7 @@ export async function generateText(req: LlmTextRequest): Promise<LlmTextResponse
       ? createGoogleGenerativeAI({ apiKey })
       : createOpenAI({ apiKey });
 
-  const result = await aiGenerateText({
+  const result = await generateText({
     model: modelFactory(modelName),
     system: req.system,
     prompt: req.user,
