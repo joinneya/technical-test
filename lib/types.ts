@@ -6,7 +6,7 @@ export type Group = {
   cadence?: string;
 };
 
-// Candidates are encouraged to evolve this into a strict schema (e.g. with Zod) and
+// Candidates are encouraged to evolve this into a strict schema and
 // to validate LLM outputs defensively.
 export type AgentDecision =
   | {
