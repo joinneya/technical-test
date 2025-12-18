@@ -4,21 +4,20 @@ Welcome 👋
 
 This repo contains a very small chat application and an intentionally unfinished AI agent.
 
-The goal of this exercise is **not** to build a feature-rich app, but to design a **well-behaved AI agent** that makes good decisions when helping people connect with others nearby.
+The goal is **not** to build a feature-rich app, but to design a **well-behaved AI agent** that helps people find the right local group.
 
-You should be able to make meaningful progress on this in **one evening**.
+You should be able to make meaningful progress in **~2–3 hours**.
 
 ## What We’re Trying to Achieve
 
 At Neya, we’re building an AI “super-neighbour” — an assistant that helps people find, meet, and support others in their local area.
 
-This test is designed to evaluate how you:
+This test is designed to evaluate:
 
-- Design **agent behaviour**, not just prompts
-- Handle **ambiguity and uncertainty**
-- Optionally use **tool usage**
-- Separate **reasoning from user-facing language**
-- Build AI systems that feel **calm, human, and trustworthy**
+- **Agent behaviour** (not just prompts)
+- **Ambiguity handling** (ask one good question when needed)
+- **Safe tool use** (don’t hallucinate groups)
+- **Clear, calm UX** (trustworthy tone)
 
 We care much more about *how you think* than how much you build.
 
@@ -37,22 +36,75 @@ Your agent should:
 
 ## What You Need To Implement (the actual task)
 
-Most of this repo is just scaffolding. The core task is:
+### Task 1: Add conversation history (multi-turn)
 
-- **Implement group search** in `lib/tools.ts` (`searchGroups(query)`).
-- **Implement agent behaviour** in `lib/agent.ts` so that for a given user message Neya will:
-  - Suggest the best matching group when the request is clear enough, **or**
-  - Ask **one** clarifying question when key info is missing (e.g. Oxford vs Cambridge).
+Right now the app sends **only the latest user message** to `/api/chat`.
+
+#### Do
+
+- **Persist the chat history** in the UI (client-side is fine).
+- Change the `/api/chat` request so you send **an array of messages**, not just a single message.
+- Update the backend so `lib/agent.ts` receives the **full conversation context**.
+
+#### Done looks like
+
+- After the user says “Actually I’m in Cambridge”, the agent uses that information on the next turn.
+
+#### Examples to support
+
+- “Yes, that one”
+- “Actually I’m in Cambridge”
+- “Weekday mornings would be best”
+
+You do **not** need a database for this. **Client-side state** (sending an array of messages) is completely fine — just explain trade-offs in NOTES.md.
+
+### Task 2: Clarification (ask one good question)
+
+#### Do
+
+- Before searching, decide if you have enough info to pick a group.
+- If not, ask **one** clarifying question that *changes* what you would search for.
+
+#### Done looks like
+
+- You ask **one** question (not multiple).
+- You don’t ask for unnecessary personal info.
+
+#### Examples of good clarifying questions
+
+- “Are you in Oxford or Cambridge?”
+- “Is this for parents with toddlers, new mums, or meeting people generally?”
+- “Would you prefer something like a weekday morning walk, or an evening meetup?”
+- “Are you hoping for something active (a run / cycle), or something social (coffee / board games / book club)?”
+- “Are you looking for something community-focused (like volunteering), or more just to meet people?”
+
+### Task 3: Group search + suggestion
+
+#### Do
+
+- Implement `searchGroups(query)` in `lib/tools.ts` (it’s intentionally a stub).
+- Use `lib/mockGroups.ts` as the only source of truth (feel free to extend).
+- In `lib/agent.ts`, when the request is clear enough:
+  - Call `searchGroups()`
+  - Pick the best match (or a small shortlist)
+  - Respond with a suggestion and a short reason
+
+#### Done looks like
+
+- The agent suggests a **real group** from `lib/mockGroups.ts`.
+- It doesn’t hallucinate groups or details.
+- If search returns no good match, the agent falls back to **Task 2** (ask one clarifying question).
 
 You can keep it simple. A basic keyword / scoring search is totally fine.
+You can always add details about how you would do it if you had more time to NOTES.md
 
-### Hard requirements
+### Hard requirements (please follow)
 
 - **Do not invent groups**. Only suggest groups that exist in `lib/mockGroups.ts`.
 - **If unsure, ask one clarifying question** (not multiple).
 - **Be calm and human** (no robotic “As an AI model…” tone).
 
-### What’s optional / up to you
+### Optional / up to you
 
 - Using an agent framework/library vs hand-rolled code
 - Adding ranking/shortlists (top 3 matches) vs single best match
@@ -68,10 +120,11 @@ Chat UI (very basic)
 POST `/api/chat`
 ↓
 Single AI Agent
-- interprets the message
-- makes a decision
-- uses tools if appropriate
-- generates a final response
+
+- Receives messages
+- Decides whether to **ask** or **suggest**
+- Calls `searchGroups()` when appropriate
+- Responds
 
 There is:
 - No auth
@@ -95,7 +148,7 @@ components/
 
 lib/
   agent.ts             # ⭐ core agent logic (most work here)
-  llm.ts               # thin Gemini wrapper
+  llm.ts               # LLM wrapper (Vercel AI SDK)
   tools.ts             # stubbed tools + mock data
   prompt.ts            # system prompt(s)
   types.ts             # shared types / schemas
@@ -110,14 +163,6 @@ Most of your work should happen in:
 - `lib/agent.ts`
 - `lib/tools.ts`
 
-## The Agent’s Responsibilities
-
-The agent should roughly follow this loop:
-
-User message → Interpret → Decide what to do → Use tools (or not) → Generate a final response
-
-How you implement this is up to you, but we are looking for **clear separation of concerns**.
-
 ## Tools (Provided)
 
 You may assume a single tool exists:
@@ -129,46 +174,6 @@ They’re backed by simple in-memory mock data. The important part is not how sm
 - When the agent decides to call it
 - What inputs it provides
 - When it decides not to call anything
-
-## Key Objectives
-
-### 1) Agentic Decision-Making
-
-We’re looking for an explicit decision step, for example:
-
-- Suggest an existing group
-- Ask a clarifying question
-- Decide to do nothing yet
-
-Strong solutions usually represent this as a structured decision, not free-text.
-
-### 2) Handling Ambiguity
-
-Users will often be vague. For example:
-
-> “I’d like to meet people nearby.”
-
-Good agent behaviour here is:
-
-- Recognising missing information
-- Asking one helpful follow-up question
-- Not hallucinating a solution
-
-### 3) Tool Control
-
-The agent should:
-
-- Only use tools when it makes sense
-- Avoid inventing data
-- Handle empty or low-confidence results gracefully
-
-### 4) Separation of Reasoning and Tone
-
-We strongly prefer designs where:
-
-- The agent’s internal reasoning / decision is not shown to the user
-- The final user message is generated after the decision is made
-- The response feels human, calm, and supportive (not robotic)
 
 ## How We’ll Assess Your Submission
 
@@ -187,6 +192,7 @@ You do not need to implement:
 
 - Authentication
 - Persistence
+- A database (in-memory / client-side state is fine)
 - Perfect matching logic
 - Real maps or geo
 - Complex UI
@@ -195,7 +201,7 @@ Please keep things simple.
 
 ## Timeboxing
 
-Please timebox yourself to **2–4 hours**.
+Please timebox yourself to **2–3 hours**.
 
 It’s completely fine if you don’t complete everything. If you run out of time, leave notes in `NOTES.md` explaining:
 
