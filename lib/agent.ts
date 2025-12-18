@@ -1,10 +1,7 @@
 import { NEYA_SYSTEM_PROMPT } from "./prompt";
 import { generateResponse } from "./llm";
 
-export type RunAgentArgs = { message: string };
-export type RunAgentResult = { reply: string };
-
-export async function runAgent(args: RunAgentArgs): Promise<RunAgentResult> {
+export async function runAgent(args: { message: string }): Promise<{ reply: string }> {
   const userMessage = args.message.trim();
 
   const { text } = await generateResponse({
