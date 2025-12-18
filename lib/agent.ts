@@ -1,21 +1,14 @@
 import { NEYA_SYSTEM_PROMPT } from "./prompt";
 import { generateText } from "./llm";
 import { searchGroups } from "./tools";
-import type { AgentDecision, Group } from "./types";
+import type { Group } from "./types";
 
 export type RunAgentArgs = {
   message: string;
-  debug?: boolean;
 };
 
 export type RunAgentResult = {
   reply: string;
-  debug?: {
-    model: string;
-    // In a stronger solution, this would be a validated `AgentDecision` (and tool inputs/outputs).
-    decision?: AgentDecision;
-    matchedGroups?: Group[];
-  };
 };
 
 export async function runAgent(args: RunAgentArgs): Promise<RunAgentResult> {
@@ -25,8 +18,8 @@ export async function runAgent(args: RunAgentArgs): Promise<RunAgentResult> {
   // The test is to evolve this into a well-behaved agent with:
   //
   // TODO(candidate): 1) Interpret + decide (structured output)
-  // - Ask the LLM for a structured `AgentDecision` (JSON) describing what to do next.
-  // - Validate it defensively (e.g. Zod). Add fallback logic if invalid.
+  // - Ask the LLM for a structured decision (JSON) describing what to do next.
+  // - Validate it defensively. Add fallback logic if invalid.
   //
   // TODO(candidate): 2) Tool use with gating
   // - Only call `searchGroups` when the decision explicitly requires it.
@@ -36,55 +29,36 @@ export async function runAgent(args: RunAgentArgs): Promise<RunAgentResult> {
   // - Keep the decision step non-user-facing.
   // - Generate the final user reply after tools run (optional second LLM pass).
 
-  // Small “starter heuristic” to make the demo feel less blank, without prescribing a solution:
-  // If the message contains a clear keyword, try a quick search and reference a real group.
-  const quickQuery = extractQuickQuery(userMessage);
-  const matchedGroups = quickQuery ? await searchGroups(quickQuery) : [];
+  // Starter baseline: try a search. In the starter repo, `searchGroups()` is intentionally a stub.
+  // That means this will usually return an empty list, and the model should ask a clarifying question.
+  const matchedGroups = await searchGroups(userMessage);
 
   let seededContext = "";
   if (matchedGroups.length > 0) {
-    const top = matchedGroups[0]!;
-    seededContext = `\n\nContext (real data): There is an existing group: "${top.name}" in ${top.locationLabel}. Description: ${top.description}\n`;
+    const top = matchedGroups.slice(0, 3);
+    seededContext =
+      "\n\nAvailable groups (real data — only reference these):\n" +
+      top
+        .map(
+          (g) =>
+            `- id=${g.id} | ${g.name} (${g.locationLabel}) — ${g.description} [tags: ${g.tags.join(", ")}]`,
+        )
+        .join("\n") +
+      "\n";
   }
 
   const { text, model } = await generateText({
     system:
       NEYA_SYSTEM_PROMPT +
-      "\n\nYou are chatting in a local-neighbourhood app.\nIf you reference a group, only reference groups mentioned in the provided context.\n" +
+      "\n\nYou are chatting in a local-neighbourhood app.\nIf you reference a group, only reference groups mentioned in the provided list.\nIf none are relevant, ask a single clarifying question.\n" +
       seededContext,
     user: userMessage,
   });
 
   const reply = text.trim() || "Sorry — I wasn’t able to generate a response.";
 
-  // Optional debug surface: useful for candidates during development.
-  return args.debug
-    ? {
-        reply,
-        debug: {
-          model,
-          matchedGroups,
-          decision: matchedGroups[0]
-            ? {
-                type: "suggest_group",
-                groupId: matchedGroups[0].id,
-                reason: "Starter heuristic: keyword search matched a group.",
-              }
-            : {
-                type: "respond_directly",
-                reason: "Starter baseline: single-pass response without tool calls.",
-              },
-        },
-      }
-    : { reply };
+  // Keep the starter response shape minimal; candidates can add debug surfaces if they want.
+  void model;
+  void matchedGroups;
+  return { reply };
 }
-
-function extractQuickQuery(message: string): string | null {
-  const m = message.toLowerCase();
-  if (m.includes("toddler") || m.includes("toddlers")) return "toddlers";
-  if (m.includes("parent") || m.includes("parents")) return "parents";
-  if (m.includes("run") || m.includes("running")) return "running";
-  if (m.includes("new") && (m.includes("area") || m.includes("here"))) return "new";
-  return null;
-}
-

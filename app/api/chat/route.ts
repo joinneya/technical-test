@@ -3,9 +3,6 @@ import { runAgent } from "../../../lib/agent";
 
 export async function POST(req: Request) {
   try {
-    const url = new URL(req.url);
-    const debug = url.searchParams.get("debug") === "1";
-
     const body: unknown = await req.json().catch(() => ({}));
     const message =
       typeof (body as { message?: unknown })?.message === "string"
@@ -19,12 +16,9 @@ export async function POST(req: Request) {
       );
     }
 
-    const result = await runAgent({ message, debug });
+    const result = await runAgent({ message });
 
-    return NextResponse.json(
-      debug ? { reply: result.reply, debug: result.debug } : { reply: result.reply },
-      { status: 200 },
-    );
+    return NextResponse.json({ reply: result.reply }, { status: 200 });
   } catch (e) {
     const msg = e instanceof Error ? e.message : "Unknown error";
     return NextResponse.json({ error: msg }, { status: 500 });
