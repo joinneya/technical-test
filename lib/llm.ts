@@ -1,4 +1,8 @@
-import { GoogleGenerativeAI } from "@google/generative-ai";
+import { generateText as aiGenerateText } from "ai";
+import { createGoogleGenerativeAI } from "@ai-sdk/google";
+import { createOpenAI } from "@ai-sdk/openai";
+
+type LlmProvider = "gemini" | "openai";
 
 export type LlmTextRequest = {
   system: string;
@@ -9,34 +13,38 @@ export type LlmTextRequest = {
 export type LlmTextResponse = {
   text: string;
   model: string;
+  provider: LlmProvider;
 };
 
-function requireGeminiApiKey() {
-  const key = process.env.GEMINI_API_KEY?.trim();
-  if (!key) {
-    throw new Error(
-      "Missing GEMINI_API_KEY. Create a `.env.local` (see `.env.example`) and set GEMINI_API_KEY=....",
-    );
-  }
-  return key;
+function getProviderAndKey(): { provider: LlmProvider; apiKey: string } {
+  // Prefer Gemini if multiple keys are present.
+  const geminiKey = process.env.GEMINI_API_KEY?.trim();
+  if (geminiKey) return { provider: "gemini", apiKey: geminiKey };
+
+  const openaiKey = process.env.OPENAI_API_KEY?.trim();
+  if (openaiKey) return { provider: "openai", apiKey: openaiKey };
+
+  throw new Error(
+    "Missing API key. Create a `.env.local` (see `.env.example`) and set either GEMINI_API_KEY=... or OPENAI_API_KEY=....",
+  );
 }
 
 export async function generateText(req: LlmTextRequest): Promise<LlmTextResponse> {
-  const apiKey = requireGeminiApiKey();
-  const modelName = req.model ?? "gemini-2.5-flash";
+  const { provider, apiKey } = getProviderAndKey();
+  const modelName = req.model ?? (provider === "gemini" ? "gemini-2.5-flash" : "gpt-4o-mini");
 
-  const genAI = new GoogleGenerativeAI(apiKey);
-  const model = genAI.getGenerativeModel({ model: modelName });
+  const modelFactory =
+    provider === "gemini"
+      ? createGoogleGenerativeAI({ apiKey })
+      : createOpenAI({ apiKey });
 
-  // Gemini’s SDK doesn’t have a “system role” identical to OpenAI’s chat messages.
-  // We keep it simple by concatenating system + user into a single prompt.
-  // Candidates can evolve this into structured prompting / multi-turn later.
-  const prompt = `${req.system}\n\nUser message:\n${req.user}\n`;
+  const result = await aiGenerateText({
+    model: modelFactory(modelName),
+    system: req.system,
+    prompt: req.user,
+  });
 
-  const result = await model.generateContent(prompt);
-  const text = result.response.text();
-
-  return { text, model: modelName };
+  return { text: result.text, model: modelName, provider };
 }
 
 

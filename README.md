@@ -231,11 +231,16 @@ npm install
 cp .env.example .env.local
 ```
 
-3. Add your Gemini key to `.env.local`:
+3. Add an LLM API key to `.env.local`:
 
 ```bash
 GEMINI_API_KEY=...
+
+# or (if you prefer OpenAI):
+# OPENAI_API_KEY=...
 ```
+
+If you set both keys, the app will **prefer Gemini**.
 
 4. Run the app:
 
