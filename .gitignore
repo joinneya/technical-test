@@ -42,5 +42,4 @@ yarn-error.log*
 next-env.d.ts
 
 # internal (do not commit)
-candidate-eval.local.md
-bonus-tasks.local.md
+/local/*

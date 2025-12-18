@@ -17,7 +17,6 @@ export default function Home() {
             .
           </p>
         </header>
-
         <Chat />
       </main>
     </div>
