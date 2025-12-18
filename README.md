@@ -35,6 +35,30 @@ Your agent should:
 3. Decide whether to ask a single clarifying question, or search for a matching group
 4. Respond in a warm, human way (including a suggestion when possible)
 
+## What You Need To Implement (the actual task)
+
+Most of this repo is just scaffolding. The core task is:
+
+- **Implement group search** in `lib/tools.ts` (`searchGroups(query)`).
+- **Implement agent behaviour** in `lib/agent.ts` so that for a given user message Neya will:
+  - Suggest the best matching group when the request is clear enough, **or**
+  - Ask **one** clarifying question when key info is missing (e.g. Oxford vs Cambridge).
+
+You can keep it simple. A basic keyword / scoring search is totally fine.
+
+### Hard requirements
+
+- **Do not invent groups**. Only suggest groups that exist in `lib/mockGroups.ts`.
+- **If unsure, ask one clarifying question** (not multiple).
+- **Be calm and human** (no robotic “As an AI model…” tone).
+
+### What’s optional / up to you
+
+- Using an agent framework/library vs hand-rolled code
+- Adding ranking/shortlists (top 3 matches) vs single best match
+- Structured decision output + validation + fallback logic
+- Tests
+
 ## High-Level Architecture
 
 The architecture is deliberately simple:
@@ -84,6 +108,7 @@ NOTES.md               # optional notes if you run out of time
 Most of your work should happen in:
 
 - `lib/agent.ts`
+- `lib/tools.ts`
 
 ## The Agent’s Responsibilities
 
@@ -144,6 +169,17 @@ We strongly prefer designs where:
 - The agent’s internal reasoning / decision is not shown to the user
 - The final user message is generated after the decision is made
 - The response feels human, calm, and supportive (not robotic)
+
+## How We’ll Assess Your Submission
+
+We’re not scoring “feature count”. We’re looking for good judgement and reliable behaviour.
+
+- **Correctness**: suggests only real groups; doesn’t hallucinate.
+- **Ambiguity handling**: asks one good clarifying question when needed; doesn’t interrogate.
+- **Search quality**: can find the right group from messy user text; reasonable ranking/selection.
+- **Reliability**: handles empty results and LLM weirdness safely (fallbacks, validation, guardrails).
+- **Code quality**: readable TypeScript, sensible structure, clear naming, minimal complexity.
+- **Communication**: helpful notes/trade-offs in `NOTES.md` if you run out of time.
 
 ## What You Don’t Need to Do
 

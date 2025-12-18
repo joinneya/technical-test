@@ -47,7 +47,7 @@ export async function runAgent(args: RunAgentArgs): Promise<RunAgentResult> {
       "\n";
   }
 
-  const { text, model } = await generateText({
+  const { text } = await generateText({
     system:
       NEYA_SYSTEM_PROMPT +
       "\n\nYou are chatting in a local-neighbourhood app.\nIf you reference a group, only reference groups mentioned in the provided list.\nIf none are relevant, ask a single clarifying question.\n" +
@@ -58,7 +58,6 @@ export async function runAgent(args: RunAgentArgs): Promise<RunAgentResult> {
   const reply = text.trim() || "Sorry — I wasn’t able to generate a response.";
 
   // Keep the starter response shape minimal; candidates can add debug surfaces if they want.
-  void model;
   void matchedGroups;
   return { reply };
 }
