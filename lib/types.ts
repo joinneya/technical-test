@@ -2,7 +2,6 @@ export type Group = {
   id: string;
   name: string;
   description: string;
-  locationLabel: string;
   tags: string[];
   cadence?: string;
 };

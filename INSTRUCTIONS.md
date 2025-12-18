@@ -4,7 +4,7 @@
 
 This repo contains a very small chat application and an intentionally unfinished AI agent.
 
-The goal is **not** to build a feature-rich app, but to design a **well-behaved AI agent** that helps people find the right local group.
+The goal is **not** to build a feature-rich app, but to design a **well-behaved AI agent** that helps people find the right group.
 
 Timebox: **~2–3 hours**.
 
@@ -12,7 +12,7 @@ Timebox: **~2–3 hours**.
 
 A user sends a message to Neya, for example:
 
-> “I’m new here and would love to meet other parents with toddlers nearby.”
+> “I’m new and would love to meet other parents with toddlers.”
 
 Your agent should:
 
@@ -40,7 +40,7 @@ Suggested touch points:
 
 #### Done looks like
 
-- After the user says “Actually I’m in Cambridge”, the agent uses that information on the next turn.
+- After the user adds important context (e.g. “Actually I prefer weekday mornings”), the agent uses that information on the next turn.
 
 You do **not** need a database for this. **Client-side state** (sending an array of messages) is completely fine — just explain trade-offs in `NOTES.md`.
 
@@ -58,7 +58,6 @@ You do **not** need a database for this. **Client-side state** (sending an array
 
 #### Examples of good clarifying questions (aligned with the dataset)
 
-- “Are you in Oxford or Cambridge?”
 - “Is this for parents with toddlers, new mums, or meeting people generally?”
 - “Would you prefer something like a weekday morning walk, or an evening meetup?”
 - “Are you hoping for something active (a run / cycle), or something social (coffee / board games / book club)?”

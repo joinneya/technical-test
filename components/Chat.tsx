@@ -19,7 +19,7 @@ export function Chat() {
       id: newId(),
       role: "assistant",
       content:
-        "Hey — I’m Neya. Tell me what you’re looking for nearby, and I’ll try to help.",
+        "Hey 👋 I’m Neya. Tell me what groups you're interested in, and I'll try and find a match for you.",
     },
   ]);
   const [input, setInput] = useState("");

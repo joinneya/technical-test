@@ -6,7 +6,7 @@ export async function searchGroups(query: string): Promise<Group[]> {
   //
   // Requirements:
   // - Return groups from `MOCK_GROUPS` that best match the user's request.
-  // - Consider matching across name/description/tags/locationLabel.
+  // - Consider matching across name/description/tags.
   // - Handle multiple plausible matches (e.g. return ranked list, top N, etc.).
   // - Keep it simple: keyword scoring is fine; embeddings are optional.
   //
