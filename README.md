@@ -167,6 +167,20 @@ It’s completely fine if you don’t complete everything. If you run out of tim
 - What trade-offs you made
 - How you’d evolve the agent with more time
 
+## Libraries / frameworks
+
+You’re welcome to use an **agent library/framework** if you prefer (or write it “by hand”). We care more about your decisions and reliability than the specific library choice.
+
+Popular options include:
+
+- [LangChain](https://js.langchain.com/)
+- [LangGraph](https://langchain-ai.github.io/langgraphjs/)
+- [Vercel AI SDK](https://sdk.vercel.ai/docs)
+- [LlamaIndex](https://ts.llamaindex.ai/)
+- [OpenAI Agents SDK](https://openai.github.io/openai-agents-js/)
+- [Google Agent Development Kit (ADK)](https://google.github.io/adk-docs/)
+- [Mastra](https://mastra.ai/)
+
 ## Setup
 
 1. Install dependencies:
