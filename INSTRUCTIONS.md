@@ -67,10 +67,11 @@ You do **not** need a database for this. **Client-side state** (sending an array
 
 #### Do
 
-- Implement `searchGroups(query)` in `lib/tools.ts` (it’s intentionally a stub).
+- Implement a small piece of “group matching” logic (e.g. a `searchGroups(query)` function).
+- You can put it wherever you like (e.g. directly in `lib/agent.ts`, or in a new module you create under `lib/`).
 - Use `lib/mockGroups.ts` as the only source of truth (feel free to extend).
 - In `lib/agent.ts`, when the request is clear enough:
-  - Call `searchGroups()`
+  - Call your matching/search logic
   - Pick the best match (or a small shortlist)
   - Respond with a suggestion and a short reason
 
