@@ -44,7 +44,13 @@ Right now the app sends **only the latest user message** to `/api/chat`.
 
 - **Persist the chat history** in the UI (client-side is fine).
 - Change the `/api/chat` request so you send **an array of messages**, not just a single message.
-- Update the backend so `lib/agent.ts` receives the **full conversation context**.
+- Update the backend so `lib/agent.ts` receives the **full conversation context** (not just the last message).
+
+Suggested touch points (optional, just to help you find things quickly):
+
+- `components/Chat.tsx`
+- `app/api/chat/route.ts`
+- `lib/agent.ts`
 
 #### Done looks like
 
@@ -129,7 +135,7 @@ Single AI Agent
 There is:
 - No auth
 - No database
-- No persistence
+- No required persistence
 - No real geo logic
 
 This is about **agent design**, not infrastructure.
@@ -167,7 +173,7 @@ Most of your work should happen in:
 
 You may assume a single tool exists:
 
-- `searchGroups(query: string): Group[]`
+- `searchGroups(query: string): Promise<Group[]>`
 
 They’re backed by simple in-memory mock data. The important part is not how smart the tools are, but:
 

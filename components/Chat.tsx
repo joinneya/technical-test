@@ -68,7 +68,7 @@ export function Chat() {
           id: newId(),
           role: "assistant",
           content:
-            "Sorry — I hit an error while trying to respond. If you’re running this locally, double-check your `.env.local` (LLM_PROVIDER + API key).",
+            "Sorry — I hit an error while trying to respond. If you’re running this locally, double-check your `.env.local` API key.",
         },
       ]);
     } finally {
